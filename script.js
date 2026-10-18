@@ -323,3 +323,50 @@ if (doorsOverlay && new URLSearchParams(window.location.search).get('from') === 
   }
 })();
 
+// ============================================================================
+// SCROLL CON INERCIA FLUIDA Y FRENADO CONTINUO (LENIS SMOOTH SCROLL)
+// ============================================================================
+(function initSmoothInertialScroll() {
+  if (typeof Lenis === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const lenis = new Lenis({
+    duration: 1.25, // Duración de la inercia al deslizar
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Curva exponencial de desaceleración suave
+    orientation: 'vertical',
+    gestureOrientation: 'vertical',
+    smoothWheel: true,
+    wheelMultiplier: 1.05,
+    touchMultiplier: 1.5,
+    infinite: false
+  });
+
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+
+  // Navegación suave coordinada con enlaces de ancla (#servicios, #reservar, etc.)
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener('click', (e) => {
+      const href = anchor.getAttribute('href');
+      if (href === '#' || href === '#contenido') return;
+      const targetElem = document.querySelector(href);
+      if (targetElem) {
+        e.preventDefault();
+        lenis.scrollTo(targetElem, { offset: -88, duration: 1.2 });
+      }
+    });
+  });
+
+  // Conectar botones de reserva con scroll suave Lenis
+  document.querySelectorAll('[data-booking]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const target = document.querySelector('#reservar');
+      if (target) {
+        lenis.scrollTo(target, { offset: -88, duration: 1.2 });
+      }
+    });
+  });
+})();
+
