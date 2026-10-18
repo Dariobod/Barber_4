@@ -323,3 +323,79 @@ if (doorsOverlay && new URLSearchParams(window.location.search).get('from') === 
   }
 })();
 
+// ============================================================================
+// SCROLL CON INERCIA (SMOOTH INERTIAL MOMENTUM SCROLL)
+// ============================================================================
+(function initInertialScroll() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  let currentY = window.scrollY || window.pageYOffset;
+  let targetY = currentY;
+  let isRunning = false;
+  let isNavigating = false;
+
+  const ease = 0.088; // Coeficiente de inercia suave
+
+  function updateScroll() {
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    targetY = Math.max(0, Math.min(targetY, maxScroll));
+    currentY += (targetY - currentY) * ease;
+
+    if (Math.abs(targetY - currentY) > 0.45) {
+      window.scrollTo(0, Math.round(currentY));
+      requestAnimationFrame(updateScroll);
+    } else {
+      window.scrollTo(0, Math.round(targetY));
+      currentY = targetY;
+      isRunning = false;
+    }
+  }
+
+  function onWheel(e) {
+    // Si el usuario está scrolleando dentro de elementos internos con scroll propio (carrusel de videos, iframe, menú abierto), no interceptar
+    if (e.target.closest('.carousel-track, iframe, #nav.open')) return;
+
+    e.preventDefault();
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const delta = e.deltaY * (e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? window.innerHeight : 1);
+
+    targetY = Math.max(0, Math.min(targetY + delta, maxScroll));
+
+    if (!isRunning) {
+      currentY = window.scrollY || window.pageYOffset;
+      isRunning = true;
+      requestAnimationFrame(updateScroll);
+    }
+  }
+
+  window.addEventListener('wheel', onWheel, { passive: false });
+
+  // Sincronizar targetY si se produce un scroll nativo (ej. arrastrar barra de scroll o navegación por anclas)
+  window.addEventListener('scroll', () => {
+    if (!isRunning) {
+      currentY = window.scrollY || window.pageYOffset;
+      targetY = currentY;
+    }
+  }, { passive: true });
+
+  // Enlaces de navegación con ancla (#servicios, #reservar, etc.) con inercia coordinada
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener('click', (e) => {
+      const href = anchor.getAttribute('href');
+      if (href === '#' || href === '#contenido') return;
+      const targetElem = document.querySelector(href);
+      if (targetElem) {
+        e.preventDefault();
+        const headerOffset = 88;
+        const elemTop = targetElem.getBoundingClientRect().top + (window.scrollY || window.pageYOffset) - headerOffset;
+        targetY = Math.max(0, elemTop);
+        currentY = window.scrollY || window.pageYOffset;
+        if (!isRunning) {
+          isRunning = true;
+          requestAnimationFrame(updateScroll);
+        }
+      }
+    });
+  });
+})();
+

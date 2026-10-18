@@ -69,25 +69,25 @@ body.menu-open{overflow:hidden}
 
 .hero-logo{width:480px;height:480px}.hero-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:28px}.hero-actions .button{margin-top:0}.hero-gallery{background:transparent;color:var(--copper)}.hero-gallery:hover{color:white}@media(max-width:800px){.hero-logo{width:350px;height:350px}}@media(max-width:450px){.hero-logo{width:260px;height:260px}.hero-actions{gap:9px}.hero-actions .button{font-size:10px;padding:11px 10px;letter-spacing:.3px;gap:5px}}
 
-/* Portada con logo achicado y bloque de marca + slogan debajo. */
-.hero-logo{width:300px;height:300px}
-.hero-brand-block{margin-top:18px;text-align:center}
-.hero-brand-block .brand-copy{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;line-height:1.1;color:var(--ink)}
-.hero-brand-block .brand-copy span{display:block;font:9px/2.5 'DM Sans',sans-serif;letter-spacing:2px;color:var(--muted)}
-.hero-slogan{font-family:'Yellowtail',cursive;font-size:36px;color:var(--copper);margin-top:14px}
+/* Portada con logo achicado y bloque de marca + slogan agrandado acorde a las secciones. */
+.hero-logo{width:220px;height:220px}
+.hero-brand-block{margin-top:20px;text-align:center}
+.hero-brand-block .brand-copy{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,5.5vw,72px);font-weight:700;line-height:1.05;color:#44271c;text-transform:uppercase;letter-spacing:4px}
+.hero-brand-block .brand-copy span{display:block;font:600 clamp(11px,1.2vw,14px)/2.2 'DM Sans',sans-serif;letter-spacing:4px;color:var(--muted)}
+.hero-slogan{font-family:'Yellowtail',cursive;font-size:clamp(34px,4vw,56px);color:var(--copper);margin-top:14px;line-height:1.15}
 
-@media(max-width:800px){.barber-pole{top:35px;right:0;width:110px;height:auto;bottom:auto}.barber-pole img,.barber-pole-canvas{width:100%;height:auto;max-width:100%}.hero-copy{padding:30px 15px}.hero-logo{width:205px;height:205px}.hero-brand-block .brand-copy{font-size:24px}.hero-slogan{font-size:32px}}
-@media(max-width:450px){.hero{min-height:520px;height:74svh}.hero-copy{padding:35px 80px 30px 15px}.hero-logo{width:165px;height:165px;margin:auto}.barber-pole{top:30px;width:80px;right:0;height:auto}.hero-brand-block .brand-copy{font-size:22px}.hero-brand-block .brand-copy span{font-size:8px}.hero-slogan{font-size:28px;margin-top:10px}}
+@media(max-width:800px){.barber-pole{top:35px;right:0;width:110px;height:auto;bottom:auto}.barber-pole img,.barber-pole-canvas{width:100%;height:auto;max-width:100%}.hero-copy{padding:30px 15px}.hero-logo{width:170px;height:170px}.hero-brand-block .brand-copy{font-size:38px}.hero-slogan{font-size:32px}}
+@media(max-width:450px){.hero{min-height:520px;height:74svh}.hero-copy{padding:35px 80px 30px 15px}.hero-logo{width:140px;height:140px;margin:auto}.barber-pole{top:30px;width:80px;right:0;height:auto}.hero-brand-block .brand-copy{font-size:30px;letter-spacing:2.5px}.hero-brand-block .brand-copy span{font-size:9px;letter-spacing:2px}.hero-slogan{font-size:28px;margin-top:8px}}
 
 /* ========================================================================== */
 /* NUEVOS ACCESOS AL ESTUDIO 3D & EFECTO "ABRIR LAS PUERTAS DEL ESTUDIO"      */
 /* ========================================================================== */
 
-/* 1. Contenedor de botones flotantes: Turnos siempre a la izquierda de Estudio 3D */
+/* 1. Contenedor de botones flotantes: desplazados a la izquierda para no superponerse con el cilindro */
 .floating-top-actions {
   position: fixed;
   top: 18px;
-  right: 22px;
+  right: clamp(140px, 20vw, 290px);
   z-index: 40;
   display: flex;
   flex-direction: row;
