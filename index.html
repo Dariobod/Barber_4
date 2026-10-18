@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="The Pip's Barber. Un concepto de barbería donde el oficio clásico encuentra el estilo contemporáneo. Explorá nuestra web o entrá al Estudio 3D interactivo.">
+  <meta name="theme-color" content="#1e1e1b">
+  <title>The Pip's Barber — Barbería tradicional &amp; Estudio 3D</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+
+  <!-- Animación de Transición: "Abrir las puertas del estudio" -->
+  <div id="studio-doors-overlay" class="studio-doors" aria-hidden="true">
+    <div class="door-leaf door-left">
+      <div class="door-frame-inner">
+        <div class="door-glass">
+          <span class="door-etch">THE PIP'S</span>
+        </div>
+        <div class="door-panel-lower"></div>
+        <div class="door-handle"></div>
+      </div>
+    </div>
+    <div class="door-leaf door-right">
+      <div class="door-frame-inner">
+        <div class="door-glass">
+          <span class="door-etch">STUDIO 3D</span>
+        </div>
+        <div class="door-panel-lower"></div>
+        <div class="door-handle"></div>
+      </div>
+    </div>
+    <div class="door-center-badge">
+      <img src="assets/logo-the-pips-barber.jpg" alt="">
+      <span>ABRIENDO EL ESTUDIO 3D...</span>
+    </div>
+  </div>
+
+  <!-- Botón Flotante para entrar al Estudio 3D -->
+  <a
+    href="estudio-3d/"
+    class="floating-3d-portal"
+    data-enter-3d
+    aria-label="Entrar a la experiencia interactiva del Estudio en 3D">
+    <span class="portal-pole-icon" aria-hidden="true"></span>
+    <span class="portal-copy">
+      <strong>ESTUDIO 3D</strong>
+      <small>Entrar a la barbería ↗</small>
+    </span>
+  </a>
+
+  <header>
+    <button class="menu" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </button>
+    <nav id="nav" aria-label="Navegación principal">
+      <a href="#inicio">Inicio</a>
+      <a href="#nosotros">Pipa</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#galeria">Galería</a>
+      <a href="#reservar">Reservar turno</a>
+      <a href="#preguntas">Antes de venir</a>
+      <a href="estudio-3d/" class="nav-3d-link" data-enter-3d>💈 Entrar al Estudio 3D ↗</a>
+    </nav>
+  </header>
+
+  <main id="contenido">
+    <section class="hero" id="inicio" aria-label="The Pip's Barber">
+      <div class="hero-copy">
+        <img class="hero-logo" src="assets/logo-the-pips-barber.jpg" alt="The Pip's Barber" fetchpriority="high">
+        <div class="hero-actions">
+          <a class="button hero-booking" href="#reservar">Reservá tu turno ↗</a>
+          <a class="button hero-gallery" href="#galeria">Ver galería ↗</a>
+          <a class="button hero-3d-btn" href="estudio-3d/" data-enter-3d>💈 Explorar Estudio 3D ↗</a>
+        </div>
+      </div>
+      <div class="barber-pole" aria-hidden="true">
+        <img src="assets/ref-barber-pole.png" alt="">
+      </div>
+    </section>
+
+    <section class="pipa-intro" id="nosotros" aria-labelledby="pipa-intro-title">
+      <div class="intro-tools" aria-hidden="true">
+        <img src="assets/ref-scissors.png" alt="">
+        <img src="assets/ref-comb.png" alt="">
+        <img src="assets/ref-razor.png" alt="">
+      </div>
+      <div class="intro-copy">
+        <h2 id="pipa-intro-title">Barbería tradicional</h2>
+        <img class="intro-divider" src="assets/ref-scissors-line.png" alt="" aria-hidden="true">
+        <p>Hola, soy <em>Pipa</em> y mi oficio es cuidar tu estilo.<br>¡Estás en buenas manos!</p>
+      </div>
+      <img class="section-edge" src="assets/ref-brush-edge.png" alt="" aria-hidden="true">
+    </section>
+
+    <section class="section" id="servicios">
+      <div class="heading">
+        <div>
+          <p class="eyebrow">01 / NUESTROS SERVICIOS</p>
+          <h2 class="brush-title">
+            Nuestros <em>servicios.</em>
+            <img class="title-underline" src="assets/ref-title-underline.png" alt="" aria-hidden="true">
+          </h2>
+        </div>
+        <p>Desde un clásico de siempre hasta un nuevo comienzo. Elegí la experiencia que va con vos.</p>
+      </div>
+      <div class="services">
+        <article>
+          <span>01</span>
+          <div>
+            <h3>Corte de adultos</h3>
+            <p>Corte de cabello para adultos con Pipa.</p>
+          </div>
+          <small>40 min</small>
+          <button
+            data-booking="https://barberpips.setmore.com/book?step=time-slot&amp;products=cee0b650-8d5f-4da7-a797-7d8b0abff38d&amp;type=service&amp;staff=c24cc366-b794-4bc8-9456-2fad92f6c982&amp;staffSelected=true"
+            aria-label="Reservar corte de adultos">↗</button>
+        </article>
+        <article>
+          <span>02</span>
+          <div>
+            <h3>Corte de Barba</h3>
+            <p>Corte y arreglo de barba con Pipa.</p>
+          </div>
+          <small>40 min</small>
+          <button
+            data-booking="https://barberpips.setmore.com/book?step=time-slot&amp;products=7a1ccee8-6b04-4984-86f7-034d4fabb3bd&amp;type=service&amp;staff=c24cc366-b794-4bc8-9456-2fad92f6c982&amp;staffSelected=true"
+            aria-label="Reservar corte de barba">↗</button>
+        </article>
+      </div>
+      <p class="note">Lunes a viernes de 10 a 18 · Tarifas a consultar en el local.</p>
+    </section>
+
+    <section class="section" id="galeria">
+      <div class="heading">
+        <div>
+          <p class="eyebrow">03 / PUERTAS ADENTRO</p>
+          <h2>El oficio, <em>en movimiento.</em></h2>
+          <img class="scissors-divider" src="assets/ref-scissors-line.png" alt="" aria-hidden="true" loading="lazy">
+        </div>
+        <p>La atmósfera también es parte del ritual.</p>
+      </div>
+
+      <div class="video-carousel" role="region" aria-roledescription="carrusel" aria-label="Videos de cortes con Pipa">
+        <div class="carousel-stage">
+          <button class="carousel-prev" type="button" aria-label="Video anterior" aria-controls="pipa-videos">←</button>
+          <div class="carousel-track" id="pipa-videos" tabindex="0" aria-label="Videos; usá las flechas del teclado para recorrerlos">
+            <figure class="video-card" role="group" aria-roledescription="diapositiva" aria-label="1 de 5">
+              <div class="video-frame">
+                <img class="video-poster" src="assets/pipa-04.jpg" alt="" loading="lazy">
+                <video controls playsinline preload="none" poster="assets/pipa-04.jpg" aria-label="El estilo, video 4">
+                  <source src="assets/pipa-04.mp4" type="video/mp4">
+                  Tu navegador no puede reproducir este video.
+                </video>
+                <button class="video-toggle" type="button" aria-label="Reproducir video" aria-pressed="false">
+                  <span class="video-toggle-icon" aria-hidden="true">▶</span>
+                </button>
+              </div>
+              <figcaption>04 — El estilo</figcaption>
+            </figure>
+
+            <figure class="video-card" role="group" aria-roledescription="diapositiva" aria-label="2 de 5">
+              <div class="video-frame">
+                <img class="video-poster" src="assets/pipa-03.jpg" alt="" loading="lazy">
+                <video controls playsinline preload="none" poster="assets/pipa-03.jpg" aria-label="La precisión, video 3">
+                  <source src="assets/pipa-03.mp4" type="video/mp4">
+                  Tu navegador no puede reproducir este video.
+                </video>
+                <button class="video-toggle" type="button" aria-label="Reproducir video" aria-pressed="false">
+                  <span class="video-toggle-icon" aria-hidden="true">▶</span>
+                </button>
+              </div>
+              <figcaption>03 — La precisión</figcaption>
+            </figure>
+
+            <figure class="video-card" role="group" aria-roledescription="diapositiva" aria-label="3 de 5">
+              <div class="video-frame">
+                <img class="video-poster" src="assets/pipa-02.jpg" alt="" loading="lazy">
+                <video controls playsinline preload="none" poster="assets/pipa-02.jpg" aria-label="Pipa en acción, video 2">
+                  <source src="assets/pipa-02.mp4" type="video/mp4">
+                  Tu navegador no puede reproducir este video.
+                </video>
+                <button class="video-toggle" type="button" aria-label="Reproducir video" aria-pressed="false">
+                  <span class="video-toggle-icon" aria-hidden="true">▶</span>
+                </button>
+              </div>
+              <figcaption>02 — Pipa en acción</figcaption>
+            </figure>
+
+            <figure class="video-card" role="group" aria-roledescription="diapositiva" aria-label="4 de 5">
+              <div class="video-frame">
+                <img class="video-poster" src="assets/pipa-01.jpg" alt="" loading="lazy">
+                <video controls playsinline preload="none" poster="assets/pipa-01.jpg" aria-label="El estudio, video 1">
+                  <source src="assets/pipa-01.mp4" type="video/mp4">
+                  Tu navegador no puede reproducir este video.
+                </video>
+                <button class="video-toggle" type="button" aria-label="Reproducir video" aria-pressed="false">
+                  <span class="video-toggle-icon" aria-hidden="true">▶</span>
+                </button>
+              </div>
+              <figcaption>01 — El estudio</figcaption>
+            </figure>
+
+            <figure class="video-card" role="group" aria-roledescription="diapositiva" aria-label="5 de 5">
+              <div class="video-frame">
+                <img class="video-poster" src="assets/pipa-05.jpg" alt="" loading="lazy">
+                <video controls playsinline preload="none" poster="assets/pipa-05.jpg" aria-label="El resultado, video 5">
+                  <source src="assets/pipa-05.mp4" type="video/mp4">
+                  Tu navegador no puede reproducir este video.
+                </video>
+                <button class="video-toggle" type="button" aria-label="Reproducir video" aria-pressed="false">
+                  <span class="video-toggle-icon" aria-hidden="true">▶</span>
+                </button>
+              </div>
+              <figcaption>05 — El resultado</figcaption>
+            </figure>
+          </div>
+          <button class="carousel-next" type="button" aria-label="Video siguiente" aria-controls="pipa-videos">→</button>
+        </div>
+        <div class="carousel-toolbar">
+          <p>EL OFICIO, EN MOVIMIENTO</p>
+          <div class="carousel-controls">
+            <span class="carousel-count" aria-live="polite" aria-atomic="true">01 / 05</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner de Invitación al Estudio Virtual 3D dentro de "Puertas Adentro" -->
+      <div class="portal-3d-banner">
+        <div class="portal-banner-copy">
+          <span class="portal-eyebrow">EXPERIENCIA INTERACTIVA 3D</span>
+          <h3>¿Querés recorrer la barbería por dentro?</h3>
+          <p>Abrí las puertas del estudio virtual en 3D: sentate en el sillón del barbero, cambiá entre luz de día y noche, probá las herramientas y escuchá la música del local.</p>
+        </div>
+        <a href="estudio-3d/" class="button portal-banner-cta" data-enter-3d>
+          💈 Abrir las puertas del Estudio 3D ↗
+        </a>
+      </div>
+    </section>
+
+    <section class="section booking" id="reservar">
+      <div>
+        <p class="eyebrow">04 / TU PRÓXIMO TURNO</p>
+        <h2>Un cambio empieza<br>por <em>sentarte.</em></h2>
+        <p>Elegí tu corte y consultá los horarios disponibles.</p>
+        <p class="note">Pipa · corte de pelo y barba<br>Lunes a viernes de 10 a 18, hora de Buenos Aires.</p>
+        <p class="note">Reservá tu turno y esperá la confirmación vía mail.</p>
+      </div>
+      <div class="booking-widget">
+        <h3 class="booking-title">Reservá tu turno</h3>
+        <iframe
+          id="booking-calendar"
+          title="Reservar corte de pelo o barba con Pipa en Setmore"
+          src="https://barberpips.setmore.com/"
+          loading="lazy"
+          allow="web-share">
+        </iframe>
+      </div>
+    </section>
+
+    <section class="section faq" id="preguntas">
+      <p class="eyebrow">ANTES DE VENIR</p>
+      <h2>Los detalles, <em>claros.</em></h2>
+      <details>
+        <summary>¿Cómo funciona la reserva?</summary>
+        <p>La agenda muestra los horarios disponibles para corte de pelo y barba con Pipa. Completá tus datos y finalizá la reserva allí. El turno queda registrado cuando recibís la confirmación de la cita. No necesitás crear una cuenta.</p>
+      </details>
+      <details>
+        <summary>¿Puedo elegir mi estilo?</summary>
+        <p>El concepto incluye una conversación antes del corte para encontrar una propuesta que acompañe tu pelo, tu rutina y tu estilo.</p>
+      </details>
+      <details>
+        <summary>¿Dónde está el estudio?</summary>
+        <p>Atendemos de lunes a viernes de 10 a 18, hora de Buenos Aires. La dirección se incorporará cuando se confirme.</p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand footer-brand" href="#inicio">
+      <img class="brand-logo" src="assets/logo-the-pips-barber.jpg" alt="" loading="lazy">
+      <div class="brand-copy">The Pip's Barber<span>STUDIO · CORTE &amp; BARBA</span></div>
+    </a>
+    <p>Un clásico. A tu manera.</p>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> The Pip's Barber · Sitio de concepto</span>
+      <a href="estudio-3d/" data-enter-3d>💈 Entrar al Estudio 3D ↗</a>
+      <a href="#inicio">Volver arriba ↑</a>
+      <span>Dirección y contacto por definir</span>
+    </div>
+  </footer>
+</body>
+</html>

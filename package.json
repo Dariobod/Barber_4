@@ -1,0 +1,10 @@
+{
+  "name": "the-pips-barber-3d",
+  "version": "2.0.0",
+  "description": "The Pip's Barber — Experiencia de exploración 3D interactiva con Three.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}

@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="The Pip's Barber — Experiencia 3D interactiva. Explorá el estudio de Pipa, conocé nuestros servicios, mirá videos de Puertas Adentro y reservá tu turno.">
+  <meta name="theme-color" content="#1e1e1b">
+  <title>The Pip's Barber — Estudio 3D Interactivo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=Yellowtail&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- 3D WebGL Canvas -->
+  <canvas id="barber-canvas" aria-label="Estudio interactivo 3D de The Pip's Barber"></canvas>
+
+  <!-- 3D Projected Floating Hotspots Layer -->
+  <div id="hotspots-layer" aria-live="polite"></div>
+
+  <!-- Hover Tooltip for 3D Objects -->
+  <div id="hover-tooltip" role="tooltip" aria-hidden="true">
+    <div class="tooltip-title">Objeto</div>
+    <div class="tooltip-sub">Click para interactuar</div>
+  </div>
+
+  <!-- Toast Notification Banner -->
+  <div id="studio-toast" role="status" aria-live="polite"></div>
+
+  <!-- Welcome / Intro Overlay -->
+  <div id="welcome-splash" role="dialog" aria-labelledby="welcome-title">
+    <div class="welcome-card">
+      <div class="welcome-badge">EXPERIENCIA DE EXPLORACIÓN 3D</div>
+      <img class="welcome-logo" src="../assets/logo-the-pips-barber.jpg" alt="The Pip's Barber">
+      <h1 id="welcome-title">The Pip's <em>Barber</em></h1>
+      <p class="welcome-lead">
+        Entrá al estudio de <strong>Pipa</strong>. Recorré la barbería en 3D, interactuá con el sillón central bajo la luz natural o cambiá a modo noche, descubrí las herramientas, mirá los videos de <em>Puertas Adentro</em> y reservá tu próximo turno.
+      </p>
+      <div class="welcome-controls-grid">
+        <div class="ctrl-item">
+          <span class="ctrl-key">🖱️ Arrastrar</span>
+          <span>Girar cámara 360°</span>
+        </div>
+        <div class="ctrl-item">
+          <span class="ctrl-key">👆 Click en Piso / WASD</span>
+          <span>Caminar por el estudio</span>
+        </div>
+        <div class="ctrl-item">
+          <span class="ctrl-key">✨ Click en Objetos</span>
+          <span>Descubrir secciones y sorpresas</span>
+        </div>
+        <div class="ctrl-item">
+          <span class="ctrl-key">☀️ / 🌙 Tecla L</span>
+          <span>Luz Natural Día / Noche Artificial</span>
+        </div>
+      </div>
+      <div class="welcome-actions" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button id="btn-enter-studio" class="btn-primary-cta" type="button">
+          ENTRAR A LA BARBERÍA 3D ↗
+        </button>
+        <a href="../?from=3d" class="btn-secondary-cta" style="text-decoration:none;">
+          ← VOLVER A WEB CLÁSICA
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top HUD Header -->
+  <header class="hud-top">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <a
+        href="../?from=3d"
+        class="hud-action-btn"
+        style="text-decoration:none;border-color:#d4a359;"
+        title="Volver a la versión web clásica de The Pip's Barber">
+        <span>←</span>
+        <span class="btn-label">Web Clásica</span>
+      </a>
+
+      <button class="hud-brand" type="button" data-waypoint="inicio" title="Volver al centro del estudio">
+        <img src="../assets/logo-the-pips-barber.jpg" alt="The Pip's Barber">
+        <div class="hud-brand-text">
+          <strong>THE PIP'S BARBER</strong>
+          <span>ESTUDIO 3D · CORTE &amp; BARBA</span>
+        </div>
+      </button>
+    </div>
+
+    <div class="hud-explorer-pill" title="Interactuá con las estaciones y herramientas del estudio para descubrir todos los secretos">
+      <div class="explorer-top">
+        <span>🧭 EXPLORACIÓN DEL ESTUDIO</span>
+        <strong id="explorer-count">0 / 11</strong>
+      </div>
+      <div class="explorer-bar">
+        <div id="explorer-bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="hud-actions">
+      <button id="btn-day-night" class="hud-action-btn" type="button" title="Cambiar entre Luz Natural del Día y Luz Artificial de Noche (Tecla L)">
+        <span class="mode-icon">☀️</span>
+        <span class="btn-label">Día (Luz Natural)</span>
+      </button>
+
+      <button id="btn-toggle-music" class="hud-action-btn" type="button" title="Encender o cambiar la música del tocadiscos del estudio">
+        <span>🎵</span>
+        <span class="btn-label">Música Off</span>
+      </button>
+
+      <button id="btn-toggle-sfx" class="hud-icon-btn" type="button" title="Silenciar o activar efectos de sonido">
+        🔊
+      </button>
+    </div>
+  </header>
+
+  <!-- Floating Barber Chair Interactive Widget -->
+  <aside id="chair-controls-widget" aria-label="Controles del Sillón del Barbero">
+    <div class="chair-widget-header">
+      <div>
+        <span class="eyebrow-tag">CENTRO DEL ESTUDIO</span>
+        <h3>El Sillón del Barbero</h3>
+      </div>
+      <button id="btn-chair-close" type="button" aria-label="Cerrar controles del sillón">✕</button>
+    </div>
+    <p class="chair-widget-desc">
+      Probá las funciones reales del sillón hidráulico clásico o sentate frente al espejo principal:
+    </p>
+    <div class="chair-widget-buttons">
+      <button id="btn-chair-sit" type="button" class="chair-btn highlight">
+        💺 Sentarse en el Sillón (1ª Persona)
+      </button>
+      <button id="btn-chair-spin" type="button" class="chair-btn">
+        🔄 Girar Sillón 360°
+      </button>
+      <button id="btn-chair-recline" type="button" class="chair-btn">
+        🛋️ Reclinar Respaldo
+      </button>
+      <button id="btn-chair-pump" type="button" class="chair-btn">
+        ⬆️ Bombear Pedal Hidráulico
+      </button>
+    </div>
+  </aside>
+
+  <!-- On-Screen Walk Pad (Bottom Left) -->
+  <div class="hud-walk-pad" aria-label="Controles para caminar por la barbería">
+    <button type="button" class="dpad-btn up" data-move="forward" title="Caminar hacia adelante (W / ↑)">▲</button>
+    <div class="dpad-mid">
+      <button type="button" class="dpad-btn left" data-move="left" title="Paso a la izquierda (A / ←)">◀</button>
+      <button type="button" class="dpad-btn center" data-waypoint="inicio" title="Centrar vista">●</button>
+      <button type="button" class="dpad-btn right" data-move="right" title="Paso a la derecha (D / →)">▶</button>
+    </div>
+    <button type="button" class="dpad-btn down" data-move="backward" title="Caminar hacia atrás (S / ↓)">▼</button>
+  </div>
+
+  <!-- Bottom HUD Quick Navigation Bar -->
+  <nav class="hud-bottom-nav" aria-label="Estaciones de la barbería">
+    <button type="button" class="hud-nav-btn active" data-waypoint="sillon">
+      <span class="nav-icon">💈</span>
+      <span>El Sillón</span>
+    </button>
+    <button type="button" class="hud-nav-btn" data-waypoint="pipa" data-open-modal="pipa">
+      <span class="nav-icon">✂️</span>
+      <span>Quién Soy (Pipa)</span>
+    </button>
+    <button type="button" class="hud-nav-btn" data-waypoint="servicios" data-open-modal="servicios">
+      <span class="nav-icon">📋</span>
+      <span>Servicios</span>
+    </button>
+    <button type="button" class="hud-nav-btn" data-waypoint="galeria" data-open-modal="galeria">
+      <span class="nav-icon">🎬</span>
+      <span>Puertas Adentro</span>
+    </button>
+    <button type="button" class="hud-nav-btn" data-waypoint="preguntas" data-open-modal="preguntas">
+      <span class="nav-icon">💬</span>
+      <span>Preguntas</span>
+    </button>
+    <button type="button" class="hud-nav-btn cta-book" data-waypoint="reservar" data-open-modal="reservar">
+      <span class="nav-icon">📅</span>
+      <span>Reservar Turno ↗</span>
+    </button>
+  </nav>
+
+  <!-- MODAL 1: ¿QUIÉN SOY? — HOLA, SOY PIPA -->
+  <section id="modal-pipa" class="studio-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="title-pipa">
+    <div class="modal-panel">
+      <button class="modal-close" type="button" data-close-modal aria-label="Cerrar ventana">✕</button>
+      <div class="modal-grid about-layout">
+        <div class="about-visual">
+          <img class="about-logo-badge" src="../assets/logo-the-pips-barber.jpg" alt="The Pip's Barber">
+          <div class="about-photo-frame">
+            <img src="../assets/pipa-02.jpg" alt="Pipa trabajando en el estudio">
+            <span>PIPA · ESTUDIO DE BARBERÍA TRADICIONAL</span>
+          </div>
+        </div>
+        <div class="about-copy">
+          <p class="eyebrow">ESTACIÓN NORTE · ¿QUIÉN SOY?</p>
+          <h2 id="title-pipa">Barbería <em>tradicional.</em></h2>
+          <img class="divider-img" src="../assets/ref-scissors-line-white.png" alt="" aria-hidden="true">
+          <p class="pipa-quote">
+            “Hola, soy <em>Pipa</em> y mi oficio es cuidar tu estilo.<br>
+            ¡Estás en buenas manos!”
+          </p>
+          <p class="body-text">
+            <strong>The Pip's Barber</strong> es un concepto de barbería donde el oficio clásico encuentra el estilo contemporáneo. Cada turno empieza con una charla personalizada para entender tu pelo, tu barba, tu rutina y lograr un corte preciso que te represente.
+          </p>
+          <div class="tools-showcase">
+            <div class="tool-pill">
+              <img src="../assets/ref-scissors.png" alt="">
+              <span>Tijeras de Precisión</span>
+            </div>
+            <div class="tool-pill">
+              <img src="../assets/ref-comb.png" alt="">
+              <span>Peine Clásico</span>
+            </div>
+            <div class="tool-pill">
+              <img src="../assets/ref-razor.png" alt="">
+              <span>Navaja Tradicional</span>
+            </div>
+          </div>
+          <div class="modal-actions-row">
+            <button type="button" class="btn-primary-cta" data-waypoint="reservar" data-open-modal="reservar">
+              RESERVÁ TU TURNO CON PIPA ↗
+            </button>
+            <button type="button" class="btn-secondary-cta" data-waypoint="servicios" data-open-modal="servicios">
+              VER SERVICIOS
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL 2: 01 / NUESTROS SERVICIOS -->
+  <section id="modal-servicios" class="studio-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="title-servicios">
+    <div class="modal-panel theme-red">
+      <button class="modal-close" type="button" data-close-modal aria-label="Cerrar ventana">✕</button>
+      <div class="modal-header-center">
+        <p class="eyebrow">01 / NUESTROS SERVICIOS</p>
+        <h2 id="title-servicios" class="brush-heading">
+          Nuestros <em>servicios.</em>
+          <img class="title-underline" src="../assets/ref-title-underline.png" alt="" aria-hidden="true">
+        </h2>
+        <p class="subtitle">Desde un clásico de siempre hasta un nuevo comienzo. Elegí la experiencia que va con vos.</p>
+      </div>
+
+      <div class="services-list">
+        <article class="service-row">
+          <span class="service-num">01</span>
+          <div class="service-info">
+            <h3>Corte de adultos</h3>
+            <p>Corte de cabello para adultos con Pipa. Incluye asesoramiento previo de estilo, degradado o corte clásico a tijera y máquina, y terminación a navaja.</p>
+          </div>
+          <small class="service-duration">40 min</small>
+          <button
+            type="button"
+            class="service-book-btn"
+            data-booking="https://barberpips.setmore.com/book?step=time-slot&amp;products=cee0b650-8d5f-4da7-a797-7d8b0abff38d&amp;type=service&amp;staff=c24cc366-b794-4bc8-9456-2fad92f6c982&amp;staffSelected=true"
+            aria-label="Reservar corte de adultos">
+            Reservar ↗
+          </button>
+        </article>
+
+        <article class="service-row">
+          <span class="service-num">02</span>
+          <div class="service-info">
+            <h3>Corte de Barba</h3>
+            <p>Corte, diseño y arreglo de barba con Pipa. Perfilado preciso de líneas, rebaje a medida e hidratación para cuidar tu piel y tu barba.</p>
+          </div>
+          <small class="service-duration">40 min</small>
+          <button
+            type="button"
+            class="service-book-btn"
+            data-booking="https://barberpips.setmore.com/book?step=time-slot&amp;products=7a1ccee8-6b04-4984-86f7-034d4fabb3bd&amp;type=service&amp;staff=c24cc366-b794-4bc8-9456-2fad92f6c982&amp;staffSelected=true"
+            aria-label="Reservar corte de barba">
+            Reservar ↗
+          </button>
+        </article>
+      </div>
+
+      <p class="modal-note">Lunes a viernes de 10 a 18 hs (Buenos Aires) · Tarifas a consultar en el local.</p>
+    </div>
+  </section>
+
+  <!-- MODAL 3: 03 / PUERTAS ADENTRO (VIDEOS EN MOVIMIENTO) -->
+  <section id="modal-galeria" class="studio-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="title-galeria">
+    <div class="modal-panel wide-panel">
+      <button class="modal-close" type="button" data-close-modal aria-label="Cerrar ventana">✕</button>
+      <div class="gallery-header">
+        <div>
+          <p class="eyebrow">03 / PUERTAS ADENTRO</p>
+          <h2 id="title-galeria">El oficio, <em>en movimiento.</em></h2>
+        </div>
+        <p class="subtitle">La atmósfera también es parte del ritual. Mirá los videos aquí o proyectalos en la TV 3D de la pared del estudio.</p>
+      </div>
+
+      <div class="video-grid">
+        <figure class="video-item">
+          <div class="video-wrap">
+            <video controls playsinline preload="metadata" poster="../assets/pipa-04.jpg">
+              <source src="../assets/pipa-04.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>
+            <strong>04 — El estilo</strong>
+            <button type="button" class="tv-send-btn" data-tv-channel="0">📺 Ver en TV 3D</button>
+          </figcaption>
+        </figure>
+
+        <figure class="video-item">
+          <div class="video-wrap">
+            <video controls playsinline preload="metadata" poster="../assets/pipa-03.jpg">
+              <source src="../assets/pipa-03.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>
+            <strong>03 — La precisión</strong>
+            <button type="button" class="tv-send-btn" data-tv-channel="1">📺 Ver en TV 3D</button>
+          </figcaption>
+        </figure>
+
+        <figure class="video-item">
+          <div class="video-wrap">
+            <video controls playsinline preload="metadata" poster="../assets/pipa-02.jpg">
+              <source src="../assets/pipa-02.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>
+            <strong>02 — Pipa en acción</strong>
+            <button type="button" class="tv-send-btn" data-tv-channel="2">📺 Ver en TV 3D</button>
+          </figcaption>
+        </figure>
+
+        <figure class="video-item">
+          <div class="video-wrap">
+            <video controls playsinline preload="metadata" poster="../assets/pipa-01.jpg">
+              <source src="../assets/pipa-01.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>
+            <strong>01 — El estudio</strong>
+            <button type="button" class="tv-send-btn" data-tv-channel="3">📺 Ver en TV 3D</button>
+          </figcaption>
+        </figure>
+
+        <figure class="video-item">
+          <div class="video-wrap">
+            <video controls playsinline preload="metadata" poster="../assets/pipa-05.jpg">
+              <source src="../assets/pipa-05.mp4" type="video/mp4">
+            </video>
+          </div>
+          <figcaption>
+            <strong>05 — El resultado</strong>
+            <button type="button" class="tv-send-btn" data-tv-channel="4">📺 Ver en TV 3D</button>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL 4: 04 / RESERVAR TURNO (SETMORE LIVE CALENDAR) -->
+  <section id="modal-reservar" class="studio-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="title-reservar">
+    <div class="modal-panel wide-panel booking-panel">
+      <button class="modal-close" type="button" data-close-modal aria-label="Cerrar ventana">✕</button>
+      <div class="booking-layout">
+        <div class="booking-sidebar">
+          <p class="eyebrow">04 / TU PRÓXIMO TURNO</p>
+          <h2 id="title-reservar">Un cambio empieza<br>por <em>sentarte.</em></h2>
+          <p class="body-text">
+            Elegí tu servicio y consultá los horarios disponibles en tiempo real con Pipa.
+          </p>
+          <div class="booking-quick-filters">
+            <span>Acceso rápido por servicio:</span>
+            <button
+              type="button"
+              class="filter-btn"
+              data-booking="https://barberpips.setmore.com/book?step=time-slot&amp;products=cee0b650-8d5f-4da7-a797-7d8b0abff38d&amp;type=service&amp;staff=c24cc366-b794-4bc8-9456-2fad92f6c982&amp;staffSelected=true">
+              ✂️ Corte de Adultos (40 min)
+            </button>
+            <button
+              type="button"
+              class="filter-btn"
+              data-booking="https://barberpips.setmore.com/book?step=time-slot&amp;products=7a1ccee8-6b04-4984-86f7-034d4fabb3bd&amp;type=service&amp;staff=c24cc366-b794-4bc8-9456-2fad92f6c982&amp;staffSelected=true">
+              🪒 Corte de Barba (40 min)
+            </button>
+            <button
+              type="button"
+              class="filter-btn"
+              data-booking="https://barberpips.setmore.com/">
+              📅 Ver Agenda General
+            </button>
+          </div>
+          <div class="booking-meta">
+            <p><strong>Horarios:</strong> Lunes a viernes de 10 a 18 hs (Hora de Buenos Aires).</p>
+            <p><strong>Confirmación:</strong> Reservá tu turno sin crear cuenta y recibí la confirmación vía mail.</p>
+          </div>
+        </div>
+
+        <div class="booking-iframe-container">
+          <iframe
+            id="booking-calendar"
+            title="Reservar corte de pelo o barba con Pipa en Setmore"
+            src="https://barberpips.setmore.com/"
+            loading="lazy"
+            allow="web-share">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL 5: ANTES DE VENIR — PREGUNTAS FRECUENTES (FAQ) -->
+  <section id="modal-preguntas" class="studio-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="title-preguntas">
+    <div class="modal-panel">
+      <button class="modal-close" type="button" data-close-modal aria-label="Cerrar ventana">✕</button>
+      <p class="eyebrow">ANTES DE VENIR · RINCÓN DE ESPERA</p>
+      <h2 id="title-preguntas">Los detalles, <em>claros.</em></h2>
+
+      <div class="faq-accordion">
+        <details open>
+          <summary>¿Cómo funciona la reserva?</summary>
+          <p>
+            La agenda muestra los horarios disponibles para corte de pelo y barba con Pipa. Completá tus datos y finalizá la reserva allí mismo. El turno queda registrado cuando recibís la confirmación de la cita por correo. No necesitás crear una cuenta.
+          </p>
+        </details>
+
+        <details open>
+          <summary>¿Puedo elegir mi estilo?</summary>
+          <p>
+            ¡Por supuesto! El concepto incluye una conversación antes del corte para encontrar una propuesta que acompañe tu tipo de pelo, tu rutina diaria y tu estilo personal.
+          </p>
+        </details>
+
+        <details open>
+          <summary>¿Dónde está el estudio y en qué horario atienden?</summary>
+          <p>
+            Atendemos de lunes a viernes de 10 a 18 hs, hora de Buenos Aires. La dirección exacta se envía con la confirmación y se incorporará públicamente cuando se confirme.
+          </p>
+        </details>
+
+        <details>
+          <summary>¿Qué objetos puedo explorar dentro de esta barbería 3D?</summary>
+          <p>
+            Podés interactuar con el <strong>Sillón Central del Barbero</strong> (sentarte en primera persona, reclinarlo o girarlo), probar la <strong>Máquina Cortapelos</strong>, las <strong>Tijeras</strong>, el <strong>Rociador de Agua</strong>, el <strong>Aro de Luz ETHEOS</strong>, poner música en el <strong>Tocadiscos Vintage</strong>, cebar un <strong>Mate</strong> en la mesa de espera, tocar el <strong>Timbre de Recepción</strong> o cambiar entre <strong>Día (Luz Natural) y Noche (Luz Artificial)</strong>.
+          </p>
+        </details>
+      </div>
+
+      <div class="modal-actions-row">
+        <button type="button" class="btn-primary-cta" data-waypoint="reservar" data-open-modal="reservar">
+          RESERVAR MI TURNO AHORA ↗
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
