@@ -275,10 +275,10 @@ window.addEventListener('pointermove', (e) => {
     if (Math.hypot(dx, dy) > 5) {
       state.dragMoved = true;
     }
-    state.targetYaw -= e.movementX * 0.0045;
+    state.targetYaw += e.movementX * 0.0045;
     state.targetPitch = Math.max(
       -Math.PI / 2.6,
-      Math.min(Math.PI / 2.8, state.targetPitch - e.movementY * 0.0038)
+      Math.min(Math.PI / 2.8, state.targetPitch + e.movementY * 0.0038)
     );
     return;
   }
@@ -382,10 +382,10 @@ canvas.addEventListener(
     const dy = ty - lastTouchY;
     lastTouchX = tx;
     lastTouchY = ty;
-    state.targetYaw -= dx * 0.005;
+    state.targetYaw += dx * 0.005;
     state.targetPitch = Math.max(
       -Math.PI / 2.6,
-      Math.min(Math.PI / 2.8, state.targetPitch - dy * 0.004)
+      Math.min(Math.PI / 2.8, state.targetPitch + dy * 0.004)
     );
   },
   { passive: true }
