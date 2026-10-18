@@ -324,61 +324,51 @@ if (doorsOverlay && new URLSearchParams(window.location.search).get('from') === 
 })();
 
 // ============================================================================
-// SCROLL CON INERCIA (SMOOTH INERTIAL MOMENTUM SCROLL)
+// SCROLL CON INERCIA ULTRA FLUIDO (MOMENTUM & FRICTION ENGINE)
 // ============================================================================
 (function initInertialScroll() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  let currentY = window.scrollY || window.pageYOffset;
-  let targetY = currentY;
-  let isRunning = false;
-  let isNavigating = false;
+  let velocity = 0;
+  let rafId = null;
+  const friction = 0.92; // Desaceleración suave y continua
+  const minVelocity = 0.35;
 
-  const ease = 0.088; // Coeficiente de inercia suave
-
-  function updateScroll() {
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    targetY = Math.max(0, Math.min(targetY, maxScroll));
-    currentY += (targetY - currentY) * ease;
-
-    if (Math.abs(targetY - currentY) > 0.45) {
-      window.scrollTo(0, Math.round(currentY));
-      requestAnimationFrame(updateScroll);
+  function step() {
+    if (Math.abs(velocity) > minVelocity) {
+      window.scrollBy(0, velocity);
+      velocity *= friction;
+      rafId = requestAnimationFrame(step);
     } else {
-      window.scrollTo(0, Math.round(targetY));
-      currentY = targetY;
-      isRunning = false;
+      velocity = 0;
+      rafId = null;
     }
   }
 
-  function onWheel(e) {
-    // Si el usuario está scrolleando dentro de elementos internos con scroll propio (carrusel de videos, iframe, menú abierto), no interceptar
-    if (e.target.closest('.carousel-track, iframe, #nav.open')) return;
+  window.addEventListener(
+    'wheel',
+    (e) => {
+      // Dejar el scroll nativo dentro de carrusel, iframes o menú móvil
+      if (e.target.closest('.carousel-track, iframe, #nav.open')) return;
 
-    e.preventDefault();
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    const delta = e.deltaY * (e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? window.innerHeight : 1);
+      e.preventDefault();
 
-    targetY = Math.max(0, Math.min(targetY + delta, maxScroll));
+      // Normalizar delta del mouse/trackpad
+      let delta = e.deltaY;
+      if (e.deltaMode === 1) delta *= 24; // Líneas
+      else if (e.deltaMode === 2) delta *= window.innerHeight; // Páginas
 
-    if (!isRunning) {
-      currentY = window.scrollY || window.pageYOffset;
-      isRunning = true;
-      requestAnimationFrame(updateScroll);
-    }
-  }
+      // Acumular velocidad con tope para evitar aceleraciones bruscas
+      velocity = Math.max(-85, Math.min(85, velocity * 0.45 + delta * 0.42));
 
-  window.addEventListener('wheel', onWheel, { passive: false });
+      if (!rafId) {
+        rafId = requestAnimationFrame(step);
+      }
+    },
+    { passive: false }
+  );
 
-  // Sincronizar targetY si se produce un scroll nativo (ej. arrastrar barra de scroll o navegación por anclas)
-  window.addEventListener('scroll', () => {
-    if (!isRunning) {
-      currentY = window.scrollY || window.pageYOffset;
-      targetY = currentY;
-    }
-  }, { passive: true });
-
-  // Enlaces de navegación con ancla (#servicios, #reservar, etc.) con inercia coordinada
+  // Enlaces de navegación con ancla (#servicios, #reservar, etc.) con desplazamiento suave y seguro
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener('click', (e) => {
       const href = anchor.getAttribute('href');
@@ -386,14 +376,17 @@ if (doorsOverlay && new URLSearchParams(window.location.search).get('from') === 
       const targetElem = document.querySelector(href);
       if (targetElem) {
         e.preventDefault();
-        const headerOffset = 88;
-        const elemTop = targetElem.getBoundingClientRect().top + (window.scrollY || window.pageYOffset) - headerOffset;
-        targetY = Math.max(0, elemTop);
-        currentY = window.scrollY || window.pageYOffset;
-        if (!isRunning) {
-          isRunning = true;
-          requestAnimationFrame(updateScroll);
+        velocity = 0;
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
         }
+        const headerOffset = 88;
+        const elemTop = targetElem.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: Math.max(0, elemTop),
+          behavior: 'smooth'
+        });
       }
     });
   });
