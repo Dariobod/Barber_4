@@ -38,18 +38,31 @@
     </div>
   </div>
 
-  <!-- Botón Flotante para entrar al Estudio 3D -->
-  <a
-    href="estudio-3d/"
-    class="floating-3d-portal"
-    data-enter-3d
-    aria-label="Entrar a la experiencia interactiva del Estudio en 3D">
-    <span class="portal-pole-icon" aria-hidden="true"></span>
-    <span class="portal-copy">
-      <strong>ESTUDIO 3D</strong>
-      <small>Entrar a la barbería ↗</small>
-    </span>
-  </a>
+  <!-- Botones Flotantes Superiores: Turnos (a la izquierda) y Estudio 3D (a la derecha) -->
+  <div class="floating-top-actions">
+    <a
+      href="#reservar"
+      class="floating-booking-portal"
+      aria-label="Reservar turno con Pipa">
+      <span class="portal-calendar-icon" aria-hidden="true">✂️</span>
+      <span class="portal-copy">
+        <strong>RESERVAR TURNO</strong>
+        <small>Agenda online ↗</small>
+      </span>
+    </a>
+
+    <a
+      href="estudio-3d/"
+      class="floating-3d-portal"
+      data-enter-3d
+      aria-label="Entrar a la experiencia interactiva del Estudio en 3D">
+      <span class="portal-pole-icon" aria-hidden="true"></span>
+      <span class="portal-copy">
+        <strong>ESTUDIO 3D</strong>
+        <small>Entrar a la barbería ↗</small>
+      </span>
+    </a>
+  </div>
 
   <header>
     <button class="menu" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
@@ -72,10 +85,9 @@
     <section class="hero" id="inicio" aria-label="The Pip's Barber">
       <div class="hero-copy">
         <img class="hero-logo" src="assets/logo-the-pips-barber.jpg" alt="The Pip's Barber" fetchpriority="high">
-        <div class="hero-actions">
-          <a class="button hero-booking" href="#reservar">Reservá tu turno ↗</a>
-          <a class="button hero-gallery" href="#galeria">Ver galería ↗</a>
-          <a class="button hero-3d-btn" href="estudio-3d/" data-enter-3d>💈 Estudio 3D ↗</a>
+        <div class="hero-brand-block">
+          <div class="brand-copy">The Pip's Barber<span>STUDIO · CORTE &amp; BARBA</span></div>
+          <p class="hero-slogan">Un clásico. A tu manera.</p>
         </div>
       </div>
       <div class="barber-pole" aria-hidden="true">

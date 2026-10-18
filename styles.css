@@ -69,42 +69,75 @@ body.menu-open{overflow:hidden}
 
 .hero-logo{width:480px;height:480px}.hero-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:28px}.hero-actions .button{margin-top:0}.hero-gallery{background:transparent;color:var(--copper)}.hero-gallery:hover{color:white}@media(max-width:800px){.hero-logo{width:350px;height:350px}}@media(max-width:450px){.hero-logo{width:260px;height:260px}.hero-actions{gap:9px}.hero-actions .button{font-size:10px;padding:11px 10px;letter-spacing:.3px;gap:5px}}
 
-/* Portada compacta y botones apilados. */
-.hero-logo{width:400px;height:400px}.hero-actions{flex-direction:column;align-items:center;gap:12px;margin-top:24px}.hero-actions .button{width:215px;justify-content:center}
-@media(max-width:800px){.hero-logo{width:280px;height:280px}.barber-pole{top:auto;height:78%;bottom:-50px;width:100px}}
-@media(max-width:450px){.hero-logo{width:215px;height:215px}.hero-copy{padding-right:75px;padding-left:15px}.barber-pole{height:72%;width:85px;bottom:-45px}.hero-actions .button{width:190px;font-size:11px;padding:13px 14px}.hero-actions{gap:10px;margin-top:22px}}
+/* Portada con logo achicado y bloque de marca + slogan debajo. */
+.hero-logo{width:300px;height:300px}
+.hero-brand-block{margin-top:18px;text-align:center}
+.hero-brand-block .brand-copy{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;line-height:1.1;color:var(--ink)}
+.hero-brand-block .brand-copy span{display:block;font:9px/2.5 'DM Sans',sans-serif;letter-spacing:2px;color:var(--muted)}
+.hero-slogan{font-family:'Yellowtail',cursive;font-size:36px;color:var(--copper);margin-top:14px}
 
-/* Cilindro móvil anclado arriba, con tamaño reducido. */
-@media(max-width:800px){.barber-pole{top:35px;bottom:auto;height:78%}}@media(max-width:450px){.barber-pole{top:30px;bottom:auto;height:72%}}
-
-/* Portada móvil centrada y cilindro completo con sus soportes. */
-@media(max-width:800px){.barber-pole{top:35px;right:0;width:110px;height:auto;bottom:auto}.barber-pole img,.barber-pole-canvas{width:100%;height:auto;max-width:100%}.hero-copy{padding:30px 15px}.hero-logo{width:240px;height:240px}}@media(max-width:450px){.barber-pole{top:30px;width:90px;height:auto}.hero-logo{width:180px;height:180px}.hero-copy{padding:30px 15px}}
-
-/* Composición móvil según la captura del cliente. */
-@media(max-width:450px){.hero{display:block;min-height:620px;height:82svh}.hero-copy{position:relative;height:100%;padding:95px 0 0}.hero-logo{width:145px;height:145px;margin-left:20%;margin-right:0}.barber-pole{top:30px;width:80px;right:0}.hero-actions{position:absolute;top:310px;left:0;right:0;margin:0;gap:10px;align-items:center}.hero-actions .button{width:66%;max-width:240px;min-height:46px;font-size:12px;padding:10px 14px;letter-spacing:0}}
-
-@media(max-width:450px){.hero{min-height:560px;height:76svh}}
+@media(max-width:800px){.barber-pole{top:35px;right:0;width:110px;height:auto;bottom:auto}.barber-pole img,.barber-pole-canvas{width:100%;height:auto;max-width:100%}.hero-copy{padding:30px 15px}.hero-logo{width:205px;height:205px}.hero-brand-block .brand-copy{font-size:24px}.hero-slogan{font-size:32px}}
+@media(max-width:450px){.hero{min-height:520px;height:74svh}.hero-copy{padding:35px 80px 30px 15px}.hero-logo{width:165px;height:165px;margin:auto}.barber-pole{top:30px;width:80px;right:0;height:auto}.hero-brand-block .brand-copy{font-size:22px}.hero-brand-block .brand-copy span{font-size:8px}.hero-slogan{font-size:28px;margin-top:10px}}
 
 /* ========================================================================== */
 /* NUEVOS ACCESOS AL ESTUDIO 3D & EFECTO "ABRIR LAS PUERTAS DEL ESTUDIO"      */
 /* ========================================================================== */
 
-/* 1. Botón flotante superior/lateral para entrar al Estudio 3D */
-.floating-3d-portal {
+/* 1. Contenedor de botones flotantes: Turnos siempre a la izquierda de Estudio 3D */
+.floating-top-actions {
   position: fixed;
   top: 18px;
   right: 22px;
   z-index: 40;
-  display: inline-flex;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 12px;
+}
+
+.floating-booking-portal,
+.floating-3d-portal {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
   padding: 9px 18px 9px 11px;
-  background: #1e1e1b;
-  color: #faf9f6;
-  border: 2px solid #d4a359;
   border-radius: 999px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
   transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+}
+
+.floating-booking-portal {
+  background: var(--copper);
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.floating-booking-portal:hover {
+  transform: translateY(-3px) scale(1.02);
+  background: #1e1e1b;
+  border-color: #d4a359;
+}
+
+.portal-calendar-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.floating-booking-portal .portal-copy small {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.floating-3d-portal {
+  background: #1e1e1b;
+  color: #faf9f6;
+  border: 2px solid #d4a359;
 }
 
 .floating-3d-portal:hover {
@@ -166,18 +199,6 @@ body.menu-open{overflow:hidden}
   color: #ffffff;
 }
 
-/* Botón 3D en el Hero */
-.hero-3d-btn {
-  background: var(--ink);
-  border-color: #d4a359;
-  color: #ffffff;
-}
-
-.hero-3d-btn:hover {
-  background: var(--copper);
-  border-color: var(--copper);
-}
-
 /* 2. Banner Portal en la sección "03 / Puertas Adentro" */
 .portal-3d-banner {
   margin-top: 48px;
@@ -229,10 +250,22 @@ body.menu-open{overflow:hidden}
     align-items: flex-start;
     padding: 28px 24px;
   }
-  .floating-3d-portal {
+  .floating-top-actions {
     top: auto;
-    bottom: 18px;
-    right: 16px;
+    bottom: 16px;
+    right: 12px;
+    left: 12px;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .floating-booking-portal,
+  .floating-3d-portal {
+    padding: 8px 13px 8px 9px;
+    gap: 8px;
+  }
+  .portal-copy strong {
+    font-size: 14px;
+    letter-spacing: 1.4px;
   }
 }
 

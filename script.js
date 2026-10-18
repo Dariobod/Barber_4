@@ -173,7 +173,7 @@ if (doorsOverlay && new URLSearchParams(window.location.search).get('from') === 
 }
 
 // ============================================================================
-// CILINDRO DE BARBERÍA PRINCIPAL EN MOVIMIENTO (HERO)
+// CILINDRO DE BARBERÍA PRINCIPAL EN MOVIMIENTO 3D REALISTA (HERO)
 // ============================================================================
 (function initHeroBarberPoleSpin() {
   const poleContainer = document.querySelector('.barber-pole');
@@ -184,54 +184,130 @@ if (doorsOverlay && new URLSearchParams(window.location.search).get('from') === 
   const ctx = poleCanvas.getContext('2d');
   if (!ctx) return;
 
-  // Coordenadas exactas del tubo interior y período vertical de las franjas en ref-barber-pole.png (419x1396)
+  // Coordenadas exactas del tubo interior en ref-barber-pole.png (419x1396)
   const TUBE_X = 39;
   const TUBE_W = 240;
   const TUBE_TOP = 189;
   const TUBE_BOT = 1198;
   const TUBE_H = TUBE_BOT - TUBE_TOP; // 1009px
-  const TILE_Y = 360;
-  const STRIPE_PERIOD = 153.33; // 3 ciclos exactos = 460px
+  const STRIPE_PERIOD = 153.33;
+  const SLICE_STEP = 3; // Rebanadas verticales para proyección cilíndrica 3D (x = R * sin(θ))
+
+  // Precalcular la deformación angular real de un cilindro en 3D (θ = arcsin(x/R))
+  // En los bordes del cilindro las franjas se comprimen y curvan naturalmente
+  const slices = [];
+  for (let i = 0; i < TUBE_W; i += SLICE_STEP) {
+    const w = Math.min(SLICE_STEP, TUBE_W - i);
+    const nx = ((i + w * 0.5) / TUBE_W) * 2 - 1; // [-1, 1]
+    const clampedNx = Math.max(-0.985, Math.min(0.985, nx));
+    const theta = Math.asin(clampedNx); // [-π/2, π/2]
+    // Desplazamiento helicoidal no lineal propio de una superficie cilíndrica real
+    const yShift = ((theta / (Math.PI * 0.5)) + 1) * 0.5 * 108;
+    slices.push({ x: TUBE_X + i, w, yShift });
+  }
+
+  // Crear un buffer con las franjas limpias (sin el reflejo estático pegado) para que giren por detrás del cristal
+  const patternCanvas = document.createElement('canvas');
+  patternCanvas.width = 4;
+  patternCanvas.height = Math.round(STRIPE_PERIOD * 10);
+  const pCtx = patternCanvas.getContext('2d');
+  if (pCtx) {
+    pCtx.fillStyle = '#ffffff';
+    pCtx.fillRect(0, 0, 4, patternCanvas.height);
+    pCtx.fillStyle = '#e22a2a';
+    const redBandHeight = STRIPE_PERIOD * 0.51;
+    for (let y = -STRIPE_PERIOD; y < patternCanvas.height + STRIPE_PERIOD; y += STRIPE_PERIOD) {
+      pCtx.fillRect(0, y, 4, redBandHeight);
+    }
+  }
 
   function startAnimation() {
     if (poleContainer.classList.contains('is-animated')) return;
     poleContainer.classList.add('is-animated');
 
-    let offset = 0;
+    let phase = 0;
+    let timeSec = 0;
     let lastTime = performance.now();
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Gradiente de volumen 3D (sombra cilíndrica en los bordes + profundidad hacia las tapas)
+    const sideShadeGrad = ctx.createLinearGradient(TUBE_X, 0, TUBE_X + TUBE_W, 0);
+    sideShadeGrad.addColorStop(0.0, 'rgba(18, 18, 16, 0.34)');
+    sideShadeGrad.addColorStop(0.09, 'rgba(18, 18, 16, 0.08)');
+    sideShadeGrad.addColorStop(0.24, 'rgba(255, 255, 255, 0.0)');
+    sideShadeGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.0)');
+    sideShadeGrad.addColorStop(0.86, 'rgba(18, 18, 16, 0.12)');
+    sideShadeGrad.addColorStop(1.0, 'rgba(18, 18, 16, 0.38)');
+
+    const topCapShadow = ctx.createLinearGradient(0, TUBE_TOP, 0, TUBE_TOP + 34);
+    topCapShadow.addColorStop(0, 'rgba(0, 0, 0, 0.28)');
+    topCapShadow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+    const botCapShadow = ctx.createLinearGradient(0, TUBE_BOT - 34, 0, TUBE_BOT);
+    botCapShadow.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    botCapShadow.addColorStop(1, 'rgba(0, 0, 0, 0.28)');
 
     function renderFrame(now) {
       const dt = Math.min((now - lastTime) / 1000, 0.1);
       lastTime = now;
 
       if (!reduceMotion.matches) {
-        offset = (offset + dt * 92) % STRIPE_PERIOD;
+        timeSec += dt;
+        // Giro continuo y suave de la hélice
+        phase = (phase + dt * 115) % STRIPE_PERIOD;
       }
 
       ctx.clearRect(0, 0, poleCanvas.width, poleCanvas.height);
-      // 1. Dibujar estructura completa (cúpulas superior/inferior, bordes y soportes)
+
+      // 1. Dibujar estructura original completa (cúpulas superior/inferior, bordes negros y soportes)
       ctx.drawImage(poleImg, 0, 0);
 
-      // 2. Recortar el área interna del cilindro y desplazar las franjas helicoidales
+      // 2. Recortar el interior del cilindro para renderizar el tubo giratorio 3D y el cristal exterior
       ctx.save();
       ctx.beginPath();
       ctx.rect(TUBE_X, TUBE_TOP, TUBE_W, TUBE_H);
       ctx.clip();
 
-      for (let y = TUBE_TOP - STRIPE_PERIOD + offset; y < TUBE_BOT; y += STRIPE_PERIOD) {
+      // 2a. Renderizar las franjas helicoidales con curvatura cilíndrica 3D real (comprimidas hacia los bordes)
+      const baseSourceY = STRIPE_PERIOD * 2 - phase;
+      for (let s = 0; s < slices.length; s++) {
+        const sl = slices[s];
         ctx.drawImage(
-          poleImg,
-          TUBE_X,
-          TILE_Y,
-          TUBE_W,
-          STRIPE_PERIOD,
-          TUBE_X,
-          y,
-          TUBE_W,
-          STRIPE_PERIOD + 0.8
+          patternCanvas,
+          0,
+          baseSourceY + sl.yShift,
+          2,
+          TUBE_H,
+          sl.x,
+          TUBE_TOP,
+          sl.w + 0.4,
+          TUBE_H
         );
       }
+
+      // 2b. Sombreado volumétrico 3D del cilindro interior (curvatura lateral y encastre con las tapas)
+      ctx.fillStyle = sideShadeGrad;
+      ctx.fillRect(TUBE_X, TUBE_TOP, TUBE_W, TUBE_H);
+      ctx.fillStyle = topCapShadow;
+      ctx.fillRect(TUBE_X, TUBE_TOP, TUBE_W, 34);
+      ctx.fillStyle = botCapShadow;
+      ctx.fillRect(TUBE_X, TUBE_BOT - 34, TUBE_W, 34);
+
+      // 2c. Tubo de cristal exterior: reflejos verticales propios del diseño con leve destello vivo
+      const shimmerX = Math.sin(timeSec * 2.4) * 1.5;
+      ctx.fillStyle = '#ffffff';
+      // Columna de brillo principal izquierda (fiel al arte original en X: 58..96)
+      ctx.fillRect(58 + shimmerX * 0.4, TUBE_TOP, 38, TUBE_H);
+      // Columna de brillo secundaria derecha (fiel al arte original en X: 251..265, con recorte superior/inferior)
+      ctx.fillRect(251 - shimmerX * 0.3, TUBE_TOP + 24, 14, TUBE_H - 42);
+
+      // Brillo especular suave de vidrio curvo al lado del reflejo principal
+      const glassGlow = ctx.createLinearGradient(TUBE_X, 0, TUBE_X + TUBE_W, 0);
+      glassGlow.addColorStop(0.0, 'rgba(255, 255, 255, 0)');
+      glassGlow.addColorStop(0.28, 'rgba(255, 255, 255, 0.22)');
+      glassGlow.addColorStop(0.42, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = glassGlow;
+      ctx.fillRect(TUBE_X, TUBE_TOP, TUBE_W, TUBE_H);
 
       ctx.restore();
       requestAnimationFrame(renderFrame);
