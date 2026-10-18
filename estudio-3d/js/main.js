@@ -1,4 +1,4 @@
-﻿import * as THREE from 'three';
+import * as THREE from 'three';
 import { buildBarbershopWorld } from './world.js';
 import { BarberAudio } from './audio.js';
 
@@ -941,18 +941,36 @@ function initUI() {
     });
   });
 
-  // Welcome Splash Screen "Entrar al Estudio 3D" -> Starts 02 - Pipa en Acción music!
-  document.getElementById('btn-enter-studio')?.addEventListener('click', () => {
-    audio.init();
-    audio.startMusic(); // Starts Station 0: "02 — Pipa en Acción (Ritmo Original)"
-    syncMusicButtonUI();
+  // Ingreso directo al Estudio 3D (sin modal de indicaciones)
+  const splash = document.getElementById('welcome-splash');
+  if (splash) {
+    splash.classList.add('hidden');
+    splash.setAttribute('aria-hidden', 'true');
+  }
 
-    const splash = document.getElementById('welcome-splash');
+  refs.tvVideoEl.play().catch(() => {});
+
+  // Iniciar la música del estudio automáticamente (o en el primer gesto si el navegador bloquea autoplay con audio)
+  let studioAudioStarted = false;
+  const startStudioAmbience = () => {
+    if (studioAudioStarted) return;
+    studioAudioStarted = true;
+    audio.init();
+    if (!audio.musicPlaying && !audio.muted) {
+      audio.startMusic();
+      syncMusicButtonUI();
+    }
+    refs.tvVideoEl.play().catch(() => {});
+  };
+
+  window.addEventListener('pointerdown', startStudioAmbience, { once: true });
+  window.addEventListener('keydown', startStudioAmbience, { once: true });
+
+  document.getElementById('btn-enter-studio')?.addEventListener('click', () => {
+    startStudioAmbience();
     if (splash) {
       splash.classList.add('hidden');
     }
-    refs.tvVideoEl.play().catch(() => {});
-    showToast('💈 ¡Bienvenido! Sonando el ritmo de "02 - Pipa en Acción". Recorré el estudio en 3D.');
   });
 
   document.querySelectorAll('[data-move]').forEach((btn) => {

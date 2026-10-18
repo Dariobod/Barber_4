@@ -171,3 +171,79 @@ if (doorsOverlay && new URLSearchParams(window.location.search).get('from') === 
     }, 80);
   });
 }
+
+// ============================================================================
+// CILINDRO DE BARBERÍA PRINCIPAL EN MOVIMIENTO (HERO)
+// ============================================================================
+(function initHeroBarberPoleSpin() {
+  const poleContainer = document.querySelector('.barber-pole');
+  const poleImg = poleContainer?.querySelector('img');
+  const poleCanvas = poleContainer?.querySelector('.barber-pole-canvas');
+  if (!poleContainer || !poleImg || !poleCanvas) return;
+
+  const ctx = poleCanvas.getContext('2d');
+  if (!ctx) return;
+
+  // Coordenadas exactas del tubo interior y período vertical de las franjas en ref-barber-pole.png (419x1396)
+  const TUBE_X = 39;
+  const TUBE_W = 240;
+  const TUBE_TOP = 189;
+  const TUBE_BOT = 1198;
+  const TUBE_H = TUBE_BOT - TUBE_TOP; // 1009px
+  const TILE_Y = 360;
+  const STRIPE_PERIOD = 153.33; // 3 ciclos exactos = 460px
+
+  function startAnimation() {
+    if (poleContainer.classList.contains('is-animated')) return;
+    poleContainer.classList.add('is-animated');
+
+    let offset = 0;
+    let lastTime = performance.now();
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+    function renderFrame(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+
+      if (!reduceMotion.matches) {
+        offset = (offset + dt * 92) % STRIPE_PERIOD;
+      }
+
+      ctx.clearRect(0, 0, poleCanvas.width, poleCanvas.height);
+      // 1. Dibujar estructura completa (cúpulas superior/inferior, bordes y soportes)
+      ctx.drawImage(poleImg, 0, 0);
+
+      // 2. Recortar el área interna del cilindro y desplazar las franjas helicoidales
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(TUBE_X, TUBE_TOP, TUBE_W, TUBE_H);
+      ctx.clip();
+
+      for (let y = TUBE_TOP - STRIPE_PERIOD + offset; y < TUBE_BOT; y += STRIPE_PERIOD) {
+        ctx.drawImage(
+          poleImg,
+          TUBE_X,
+          TILE_Y,
+          TUBE_W,
+          STRIPE_PERIOD,
+          TUBE_X,
+          y,
+          TUBE_W,
+          STRIPE_PERIOD + 0.8
+        );
+      }
+
+      ctx.restore();
+      requestAnimationFrame(renderFrame);
+    }
+
+    requestAnimationFrame(renderFrame);
+  }
+
+  if (poleImg.complete && poleImg.naturalWidth > 0) {
+    startAnimation();
+  } else {
+    poleImg.addEventListener('load', startAnimation, { once: true });
+  }
+})();
+
